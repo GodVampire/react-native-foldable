@@ -7,8 +7,17 @@
   "files": [
     "lib/",
     "src/",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GodVampire/react-native-foldable.git"
+  },
+  "homepage": "https://github.com/GodVampire/react-native-foldable#readme",
+  "bugs": {
+    "url": "https://github.com/GodVampire/react-native-foldable/issues"
+  },
   "scripts": {
     "build": "tsc",
     "prepare": "npm run build",
@@ -25,12 +34,13 @@
     }
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
-    "@types/react-native": "^0.73.0",
+    "@types/react": "^18.3.28",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
-    "typescript": "^5.3.0"
+    "react": "^18.3.1",
+    "react-native": "^0.76.9",
+    "typescript": "^5.9.3"
   },
   "keywords": [
     "react-native",
