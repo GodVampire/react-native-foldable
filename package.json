@@ -1,5 +1,5 @@
 {
-  "name": "@vampire_163/react-native-foldable",
+  "name": "@hecom/react-native-foldable",
   "version": "1.0.0",
   "description": "React Native 多折叠屏幕自适应布局库，支持三折叠、双折叠、iPad、平板及鸿蒙系统",
   "main": "lib/index.js",
