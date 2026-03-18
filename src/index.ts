@@ -93,16 +93,117 @@ export type { FoldableProviderProps } from './context/FoldableProvider'
 /**
  * 内置 Hooks：
  *
- * | Hook | 说明 |
- * |------|------|
- * | `useFoldableScreen()` | 获取完整屏幕感知信息（宽高、折叠态、布局模式、断点等） |
- * | `useScreenLayout()` | 布局模式快捷访问（`isSingle` / `isSidebar` / `isDual` …） |
- * | `useBreakpoint()` | 响应式断点查询（`up()` / `down()` / `between()` / `is()`） |
- * | `useAdaptiveStyle()` | mobile-first 响应式样式叠加 |
- * | `useAdaptiveValue()` | 按断点返回不同值（列数、字号等） |
- * | `useFoldStateChange()` | 监听折叠状态变化回调 |
- * | `useLayoutModeChange()` | 监听布局模式变化回调 |
- * | `useFoldableNavigation()` | 获取导航布局建议（侧边栏 / 底部 Tab / Drawer） |
+ * ---
+ *
+ * ### `useFoldableScreen()` — 完整屏幕状态
+ * 获取宽高、折叠态、布局模式、断点等所有信息。适用于需要根据折叠形态做复杂布局决策的场景。
+ * ```tsx
+ * function HomeScreen() {
+ *   const { foldState, layoutMode, width, isTriFold } = useFoldableScreen()
+ *
+ *   if (isTriFold && foldState === FoldState.TRI_FULL) {
+ *     return <ThreeColumnLayout />
+ *   }
+ *   return <View style={{ padding: width > 840 ? 24 : 16 }} />
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ### `useScreenLayout()` — 布局模式布尔值
+ * 只关心"现在该用哪种布局"，不需要原始枚举值。
+ * ```tsx
+ * function AppShell() {
+ *   const { isSidebar, isSidebarDual, isSingle } = useScreenLayout()
+ *   return (
+ *     <View style={{ flexDirection: 'row' }}>
+ *       {!isSingle && <NavigationSidebar />}
+ *       <MainContent />
+ *       {isSidebarDual && <DetailPanel />}
+ *     </View>
+ *   )
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ### `useBreakpoint()` — 响应式断点查询
+ * 类似 CSS 媒体查询，根据当前断点控制样式或行为。
+ * ```tsx
+ * function ProductGrid() {
+ *   const { up } = useBreakpoint()
+ *   const numColumns = up('xl') ? 4 : up('lg') ? 3 : up('md') ? 2 : 1
+ *   return <FlatList numColumns={numColumns} data={products} renderItem={renderItem} />
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ### `useAdaptiveStyle()` — 响应式样式（mobile-first 叠加）
+ * 同一组件在不同屏幕宽度下应用不同样式，从 `base` 开始向上叠加。
+ * ```tsx
+ * function Card() {
+ *   const style = useAdaptiveStyle({
+ *     base: { padding: 12, borderRadius: 8 },
+ *     md:   { padding: 16 },
+ *     lg:   { padding: 24, flexDirection: 'row' },
+ *   })
+ *   return <View style={style} />
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ### `useAdaptiveValue()` — 响应式单值
+ * 字号、间距、列数等单一数值随断点变化。
+ * ```tsx
+ * function ArticleTitle({ title }: { title: string }) {
+ *   const fontSize   = useAdaptiveValue({ base: 18, md: 22, lg: 26, xl: 30 })
+ *   const lineHeight = useAdaptiveValue({ base: 26, md: 32, lg: 38, xl: 44 })
+ *   return <Text style={{ fontSize, lineHeight }}>{title}</Text>
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ### `useFoldStateChange()` / `useLayoutModeChange()` — 变化事件
+ * 折叠/展开时触发动画、埋点、重置滚动位置等副作用。
+ * ```tsx
+ * function Screen() {
+ *   const scrollRef = useRef<ScrollView>(null)
+ *
+ *   useLayoutModeChange(() => {
+ *     // 布局切换时回到顶部并触发过渡动画
+ *     scrollRef.current?.scrollTo({ y: 0 })
+ *     if (Platform.OS !== 'ios') {
+ *       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+ *     }
+ *   })
+ *
+ *   useFoldStateChange((next, prev) => {
+ *     analytics.track('fold_state_change', { from: prev, to: next })
+ *   })
+ * }
+ * ```
+ *
+ * ---
+ *
+ * ### `useFoldableNavigation()` — 导航布局建议
+ * 根据屏幕宽度自动在"底部 Tab"和"永久侧边栏"之间切换，适合现有工程改造。
+ * ```tsx
+ * function RootNavigator() {
+ *   const { useSidebar, useBottomTab, sidebarWidth } = useFoldableNavigation()
+ *   return (
+ *     <SidebarLayout
+ *       sidebar={useSidebar ? <AppSidebarNav /> : null}
+ *       sidebarWidth={sidebarWidth}
+ *     >
+ *       <AppStackNavigator />
+ *       {useBottomTab && <BottomTabBar />}
+ *     </SidebarLayout>
+ *   )
+ * }
+ * ```
  */
 export { useFoldableScreen } from './hooks/useFoldableScreen'
 export { useScreenLayout } from './hooks/useScreenLayout'
