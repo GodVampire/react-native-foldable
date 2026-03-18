@@ -24,6 +24,7 @@ import {
   DEFAULT_FOLDABLE_MIN_UNFOLDED_WIDTH, DEFAULT_DEBOUNCE_DELAY, LOG_PREFIX,
 } from '../core/constants'
 import { simulationManager } from '../debug/SimulationManager'
+import { Orientation } from '../types'
 import type { FoldableConfig, FoldableScreenInfo, BreakpointValues } from '../types'
 
 export interface FoldableProviderProps {
@@ -96,9 +97,17 @@ export function FoldableProvider({ children, config: userConfig }: FoldableProvi
     applyRealDimensions,
   ])
 
-  // 监听真实尺寸变化（模拟激活时跳过）
+  // 监听真实尺寸变化
+  // 模拟激活时只同步真实设备的屏幕方向，其余字段保持模拟数据不变
   const handleChange = useCallback(() => {
-    if (simulationManager.isActive) return
+    if (simulationManager.isActive) {
+      const { window: win } = dimensionManager.current
+      const realOrientation = win.width >= win.height ? Orientation.LANDSCAPE : Orientation.PORTRAIT
+      setScreenInfo((prev) =>
+        prev.orientation !== realOrientation ? { ...prev, orientation: realOrientation } : prev
+      )
+      return
+    }
     applyRealDimensions()
   }, [applyRealDimensions])
 

@@ -69,7 +69,7 @@ export function FoldDebugPanel({ position = 'bottom-right' }: FoldDebugPanelProp
   const [activePreset, setActivePreset] = useState<SimulationPreset | null>(
     () => simulationManager.currentPreset,
   )
-  const { foldState, layoutMode, deviceType, width, breakpoint } = useFoldableScreen()
+  const { foldState, layoutMode, deviceType, width, breakpoint, isPad, isFoldable, isTriFold } = useFoldableScreen()
 
   // 外部调用 simulationManager API 时同步按钮状态
   useEffect(() => {
@@ -117,6 +117,9 @@ export function FoldDebugPanel({ position = 'bottom-right' }: FoldDebugPanelProp
             </Text>
             <Text style={styles.statusText} numberOfLines={1}>
               {layoutMode}  ·  {breakpoint}  ·  {Math.round(width)}dp
+            </Text>
+            <Text style={styles.statusText} numberOfLines={1}>
+              {isPad ? '✓ iPad' : '✗ iPad'}  ·  {isFoldable ? '✓ 折叠' : '✗ 折叠'}  ·  {isTriFold ? '✓ 三折' : '✗ 三折'}
             </Text>
             {simulationManager.isActive && (
               <View style={styles.simBadge}>

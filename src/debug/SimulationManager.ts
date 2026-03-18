@@ -97,12 +97,12 @@ export const SIMULATION_PRESETS: Record<SimulationPreset, SimulationEntry> = {
       orientation: Orientation.PORTRAIT,
       foldState: FoldState.UNKNOWN,
       deviceType: DeviceType.TABLET,
-      layoutMode: LayoutMode.SIDEBAR,
-      breakpoint: 'lg',
-      columns: 3,
+      layoutMode: LayoutMode.DUAL,    // 800 < 840 → wideEnough=false → DUAL
+      breakpoint: 'md',              // 600 ≤ 800 < 840
+      columns: 2,
       isTablet: true,
-      showSidebar: false,   // 800 < 840（默认侧边栏阈值）
-      isWideScreen: true,
+      showSidebar: false,            // 800 < 840
+      isWideScreen: false,           // 800 < 840
     },
   },
 
@@ -118,13 +118,13 @@ export const SIMULATION_PRESETS: Record<SimulationPreset, SimulationEntry> = {
       orientation: Orientation.PORTRAIT,
       foldState: FoldState.UNKNOWN,
       deviceType: DeviceType.IPAD,
-      layoutMode: LayoutMode.DUAL,
-      breakpoint: 'lg',
-      columns: 3,
+      layoutMode: LayoutMode.DUAL,    // 744 < 840 → wideEnough=false → DUAL
+      breakpoint: 'md',              // 600 ≤ 744 < 840
+      columns: 2,
       isTablet: true,
       isPad: true,
-      showSidebar: false,  // 744 < 840
-      isWideScreen: true,
+      showSidebar: false,            // 744 < 840
+      isWideScreen: false,           // 744 < 840
     },
   },
 
@@ -140,12 +140,12 @@ export const SIMULATION_PRESETS: Record<SimulationPreset, SimulationEntry> = {
       orientation: Orientation.PORTRAIT,
       foldState: FoldState.UNKNOWN,
       deviceType: DeviceType.IPAD,
-      layoutMode: LayoutMode.SIDEBAR_DUAL,
-      breakpoint: 'xl',
-      columns: 4,
+      layoutMode: LayoutMode.SIDEBAR,  // 840 ≤ 1024 < 1200 → wideEnough=true → SIDEBAR
+      breakpoint: 'lg',               // 840 ≤ 1024 < 1200
+      columns: 2,
       isTablet: true,
       isPad: true,
-      showSidebar: true,
+      showSidebar: true,              // 1024 >= 840
       isWideScreen: true,
     },
   },
@@ -185,8 +185,8 @@ export const SIMULATION_PRESETS: Record<SimulationPreset, SimulationEntry> = {
       foldState: FoldState.HALF_FOLDED,
       deviceType: DeviceType.FOLDABLE,
       layoutMode: LayoutMode.DUAL,
-      breakpoint: 'sm',
-      columns: 2,
+      breakpoint: 'sm',               // 360 ≤ 568 < 600
+      columns: 1,                     // sm → 1 列
       isFoldable: true,
       showSidebar: false,
       isWideScreen: false,
@@ -205,11 +205,11 @@ export const SIMULATION_PRESETS: Record<SimulationPreset, SimulationEntry> = {
       orientation: Orientation.LANDSCAPE,
       foldState: FoldState.UNFOLDED,
       deviceType: DeviceType.FOLDABLE,
-      layoutMode: LayoutMode.SIDEBAR,
-      breakpoint: 'lg',
-      columns: 3,
+      layoutMode: LayoutMode.SIDEBAR,  // 882 >= 840 → wideEnough=true → SIDEBAR
+      breakpoint: 'lg',               // 840 ≤ 882 < 1200
+      columns: 2,                     // lg → 2 列
       isFoldable: true,
-      showSidebar: true,   // 882 >= 840
+      showSidebar: true,              // 882 >= 840
       isWideScreen: true,
     },
   },
@@ -249,13 +249,13 @@ export const SIMULATION_PRESETS: Record<SimulationPreset, SimulationEntry> = {
       orientation: Orientation.LANDSCAPE,
       foldState: FoldState.TRI_HALF,
       deviceType: DeviceType.TRI_FOLDABLE,
-      layoutMode: LayoutMode.SIDEBAR,
-      breakpoint: 'lg',
-      columns: 3,
+      layoutMode: LayoutMode.DUAL,    // 800 < 840 → wideEnough=false → DUAL
+      breakpoint: 'md',              // 600 ≤ 800 < 840
+      columns: 2,
       isFoldable: true,
       isTriFold: true,
-      showSidebar: false,  // 800 < 840
-      isWideScreen: true,
+      showSidebar: false,            // 800 < 840
+      isWideScreen: false,           // 800 < 840
     },
   },
 
@@ -272,11 +272,11 @@ export const SIMULATION_PRESETS: Record<SimulationPreset, SimulationEntry> = {
       foldState: FoldState.TRI_FULL,
       deviceType: DeviceType.TRI_FOLDABLE,
       layoutMode: LayoutMode.SIDEBAR_DUAL,
-      breakpoint: 'xl',
-      columns: 4,
+      breakpoint: 'lg',               // 840 ≤ 1008 < 1200
+      columns: 2,                     // lg → 2 列
       isFoldable: true,
       isTriFold: true,
-      showSidebar: true,
+      showSidebar: true,              // 1008 >= 840
       isWideScreen: true,
     },
   },
