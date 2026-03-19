@@ -69,6 +69,100 @@ function HomeScreen() {
 
 ---
 
+## Class 组件用法
+
+Hooks 只能在函数组件中使用。如果项目中存在 class 组件，可通过以下三种方式接入。
+
+### 方式一：`withFoldableScreen` HOC（推荐，适合叶节点组件）
+
+通过高阶组件将折叠屏状态以 `props.foldable` 注入 class 组件。**注意：HOC 返回的是函数组件，无法被继承，请勿对父类/基类使用此方式。**
+
+```tsx
+import { withFoldableScreen } from '@hecom/react-native-foldable'
+import type { FoldableScreenInfo } from '@hecom/react-native-foldable'
+
+interface Props {
+  foldable: FoldableScreenInfo  // 由 HOC 自动注入
+  title: string                 // 业务自有 props
+}
+
+class DetailScreen extends React.Component<Props> {
+  render() {
+    const { foldable, title } = this.props
+    return (
+      <View style={{ padding: foldable.showSidebar ? 24 : 16 }}>
+        <Text>{title}</Text>
+        <Text>{foldable.foldState} / {foldable.layoutMode}</Text>
+      </View>
+    )
+  }
+}
+
+export default withFoldableScreen(DetailScreen)
+// 使用时不需要传入 foldable prop：<DetailScreen title="详情" />
+```
+
+### 方式二：`static contextType`（推荐用于继承场景）
+
+`static contextType` 会被子类**自动继承**，适合存在基类/子类继承关系的组件树。
+
+```tsx
+import { FoldableContext } from '@hecom/react-native-foldable'
+import type { FoldableContextValue } from '@hecom/react-native-foldable'
+
+// 基类：声明一次，所有子类自动继承
+class BaseScreen extends React.Component {
+  static contextType = FoldableContext
+  declare context: FoldableContextValue
+
+  // 可封装 getter 方便子类访问
+  get foldable() { return this.context.screenInfo }
+}
+
+// 子类：直接继承，无需额外声明
+class HomeScreen extends BaseScreen {
+  render() {
+    const { foldState, width, showSidebar } = this.foldable
+    return (
+      <View style={{ flexDirection: showSidebar ? 'row' : 'column' }}>
+        <Text>宽度：{width}dp，折叠态：{foldState}</Text>
+      </View>
+    )
+  }
+}
+
+class DetailScreen extends BaseScreen {
+  render() {
+    const { columns } = this.foldable  // ✅ 直接可用
+    return <Text>推荐列数：{columns}</Text>
+  }
+}
+```
+
+### 方式三：`FoldableContext.Consumer`（Render Props）
+
+适合需要在 JSX 局部区域响应折叠状态，无需改造整个组件。
+
+```tsx
+import { FoldableContext } from '@hecom/react-native-foldable'
+
+class ProfileScreen extends React.Component {
+  render() {
+    return (
+      <FoldableContext.Consumer>
+        {({ screenInfo }) => (
+          <View style={{ padding: screenInfo.isWideScreen ? 32 : 16 }}>
+            <Text>列数：{screenInfo.columns}</Text>
+          </View>
+        )}
+      </FoldableContext.Consumer>
+    )
+  }
+}
+```
+
+---
+
 ## Hooks API
 
 ### `useFoldableScreen()` — 完整状态

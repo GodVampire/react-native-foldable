@@ -88,6 +88,9 @@ export type {
  */
 export { FoldableProvider } from './context/FoldableProvider'
 export type { FoldableProviderProps } from './context/FoldableProvider'
+export { FoldableContext } from './context/FoldableContext'
+export type { FoldableContextValue } from './context/FoldableContext'
+export { withFoldableScreen } from './context/withFoldableScreen'
 
 // ─── Hooks ───────────────────────────────────────────────────────────────────
 /**
