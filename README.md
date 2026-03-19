@@ -1,4 +1,4 @@
-# react-native-foldable
+# @hecom/react-native-foldable
 
 > React Native 多折叠屏幕自适应布局库
 > **三折叠 / 双折叠 / iPad / 平板 / 鸿蒙 (HarmonyOS)** 全支持
@@ -22,9 +22,9 @@
 ## 安装
 
 ```bash
-npm install react-native-foldable
+npm install @hecom/react-native-foldable
 # 或
-yarn add react-native-foldable
+yarn add @hecom/react-native-foldable
 ```
 
 无额外原生依赖，开箱即用。
@@ -37,7 +37,7 @@ yarn add react-native-foldable
 
 ```tsx
 // App.tsx
-import { FoldableProvider } from 'react-native-foldable'
+import { FoldableProvider } from '@hecom/react-native-foldable'
 
 export default function App() {
   return (
@@ -51,7 +51,7 @@ export default function App() {
 ### Step 2：页面中使用 Hook
 
 ```tsx
-import { useFoldableScreen } from 'react-native-foldable'
+import { useFoldableScreen } from '@hecom/react-native-foldable'
 
 function HomeScreen() {
   const { foldState, layoutMode, showSidebar, isTriFold, width } = useFoldableScreen()
@@ -65,143 +65,7 @@ function HomeScreen() {
 }
 ```
 
----
-
-## 导航适配方案
-
-### 方案 A：`FoldableNavigationContainer`（一体化，推荐）
-
-```tsx
-// App.tsx
-import { NavigationContainer } from '@react-navigation/native'
-import { FoldableNavigationContainer } from 'react-native-foldable'
-
-export default function App() {
-  return (
-    <NavigationContainer>
-      <FoldableNavigationContainer
-        config={{ debug: __DEV__ }}
-        sidebarWidth={260}
-        renderSidebar={(info) => <MySidebarNav foldState={info.foldState} />}
-        renderBottomBar={() => <MyBottomTabBar />}
-      >
-        {() => <RootStack />}
-      </FoldableNavigationContainer>
-    </NavigationContainer>
-  )
-}
-```
-
-### 方案 B：`useFoldableNavigation` + 自定义导航（适合现有工程改造）
-
-```tsx
-// RootNavigator.tsx
-import { useFoldableNavigation, SidebarLayout } from 'react-native-foldable'
-
-function RootNavigator() {
-  const { useSidebar, useBottomTab, sidebarWidth } = useFoldableNavigation()
-
-  return (
-    <SidebarLayout
-      sidebar={useSidebar ? <MySidebarMenu /> : null}
-      sidebarWidth={sidebarWidth}
-    >
-      <MyCustomStack />
-      {useBottomTab && <MyBottomTabBar />}
-    </SidebarLayout>
-  )
-}
-```
-
-### 方案 C：React Navigation Drawer permanent 模式
-
-```tsx
-import { createDrawerNavigator } from '@react-navigation/drawer'
-import { useFoldableNavigation } from 'react-native-foldable'
-
-const Drawer = createDrawerNavigator()
-
-function AppNavigator() {
-  const { useSidebar, sidebarWidth } = useFoldableNavigation()
-
-  return (
-    <Drawer.Navigator
-      drawerType={useSidebar ? 'permanent' : 'front'}
-      drawerStyle={{ width: sidebarWidth }}
-      drawerContent={(props) => <AppDrawerContent {...props} />}
-    >
-      <Drawer.Screen name="Home" component={HomeStack} />
-    </Drawer.Navigator>
-  )
-}
-```
-
----
-
-## 组件 API
-
-### `<FoldableProvider>`
-
-```tsx
-<FoldableProvider
-  config={{
-    breakpoints: { lg: 900 },      // 自定义断点（dp）
-    sidebarMinWidth: 860,           // 侧边栏显示阈值
-    triFoldThreshold: 950,          // 三折叠全展开识别宽度
-    foldableMinUnfoldedWidth: 650,  // 折叠设备展开识别宽度
-    debounceDelay: 200,             // 防抖延迟(ms)
-    debug: true,                    // 开启状态日志
-  }}
->
-  {children}
-</FoldableProvider>
-```
-
-### `<AdaptiveLayout>`
-
-| LayoutMode | 渲染结构 |
-|-----------|---------|
-| `SINGLE` | `children` 全宽 |
-| `DUAL` | `leadingContent` \| `trailingContent` |
-| `TRI` | leading \| center \| trailing |
-| `SIDEBAR` | `sidebar`(固定宽) + `children`(flex) |
-| `SIDEBAR_DUAL` | `sidebar` + `leading` + `trailing` |
-
-```tsx
-<AdaptiveLayout
-  sidebar={<NavMenu />}
-  leadingContent={<ArticleList />}
-  trailingContent={<ArticleDetail />}
-  sidebarWidth={240}
-  columnRatio={[1, 2]}
->
-  <ArticleListScreen /> {/* 单列时使用 */}
-</AdaptiveLayout>
-```
-
-### `<SidebarLayout>`
-
-```tsx
-<SidebarLayout
-  sidebar={<NavigationMenu />}
-  sidebarWidth={240}
-  sidebarStyle={{ backgroundColor: '#1a1a2e' }}
->
-  <Stack.Navigator />
-</SidebarLayout>
-```
-
-### `<FoldAwareView>`
-
-```tsx
-<FoldAwareView>
-  {({ foldState, showSidebar, width }) => (
-    <View style={{ flexDirection: showSidebar ? 'row' : 'column' }}>
-      <Text>{foldState}</Text>
-    </View>
-  )}
-</FoldAwareView>
-```
+> 导航与组件的完整适配方案，请参阅 [NAVIGATION.md](NAVIGATION.md)。
 
 ---
 
@@ -257,7 +121,6 @@ const numColumns = useAdaptiveValue({ base: 1, md: 2, lg: 3, xl: 4 })
 
 ```ts
 useFoldStateChange((nextState, prevState, info) => {
-  // 触发布局过渡动画
   LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
 })
 
@@ -302,7 +165,28 @@ useLayoutModeChange((next, prev) => {
 5. 折叠状态：≥900dp=TRI_FULL | ≥600dp=TRI_HALF | <600dp=FOLDED
 ```
 
-> 首次冷启动（折叠态）展开一次后即可完整识别三折叠特征。
+**冷启动识别准确度：**
+
+| 冷启动状态 | 宽度 | 首帧识别结果 |
+|-----------|------|-------------|
+| TRI_FULL 全展开 | ~1008dp | ✅ 直接识别（≥ 900dp 阈值命中） |
+| TRI_HALF 半展开 | ~800dp | ⚠️ 被识别为 TABLET，会话内展开至 TRI_FULL 后自动修正 |
+| FOLDED 折叠态 | ~499dp | ⚠️ 被识别为 PHONE，展开至 TRI_FULL（≥900dp）后自动修正 |
+
+> **原因**：纯 JS 方案无法访问系统级折叠 API（Android `WindowManager.FoldingFeature`），TRI_HALF（~800dp）与普通 Android 平板宽度重叠，仅凭单次尺寸快照无法区分。
+
+**如需首帧精确识别**（如 Mate XT 专属应用），可通过 `deviceTypeHint` 手动指定：
+
+```tsx
+import DeviceInfo from 'react-native-device-info'
+import { DeviceType } from '@hecom/react-native-foldable'
+
+const model = await DeviceInfo.getModel()  // e.g. "HUAWEI Mate XT"
+
+<FoldableProvider config={{
+  deviceTypeHint: model.includes('Mate XT') ? DeviceType.TRI_FOLDABLE : undefined,
+}}>
+```
 
 ---
 
@@ -313,49 +197,6 @@ useLayoutModeChange((next, prev) => {
 - `Platform.constants` 中包含 `harmonyos` 关键字
 
 折叠检测逻辑与 Android 完全一致，无需额外配置。
-
----
-
-## 完整生产示例
-
-```tsx
-// App.tsx
-import React from 'react'
-import { LayoutAnimation, Platform } from 'react-native'
-import { NavigationContainer } from '@react-navigation/native'
-import {
-  FoldableProvider,
-  SidebarLayout,
-  useFoldableNavigation,
-  useFoldStateChange,
-} from 'react-native-foldable'
-
-function RootNavigator() {
-  const { useSidebar, sidebarWidth } = useFoldableNavigation({ sidebarWidth: 260 })
-
-  useFoldStateChange(() => {
-    if (Platform.OS !== 'ios') {
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-    }
-  })
-
-  return (
-    <SidebarLayout sidebar={useSidebar ? <AppSidebarNav /> : null} sidebarWidth={sidebarWidth}>
-      <AppStackNavigator />
-    </SidebarLayout>
-  )
-}
-
-export default function App() {
-  return (
-    <FoldableProvider config={{ debug: __DEV__ }}>
-      <NavigationContainer>
-        <RootNavigator />
-      </NavigationContainer>
-    </FoldableProvider>
-  )
-}
-```
 
 ---
 

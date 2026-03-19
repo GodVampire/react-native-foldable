@@ -8,8 +8,9 @@ import { DEFAULT_BREAKPOINTS, DEFAULT_SIDEBAR_MIN_WIDTH, DEFAULT_TRI_FOLD_THRESH
 import type { FoldableScreenInfo, FoldableConfig, BreakpointValues } from '../types'
 
 // 已合并完整断点版本的配置类型
-export interface ResolvedFoldableConfig extends Omit<Required<FoldableConfig>, 'breakpoints'> {
+export interface ResolvedFoldableConfig extends Omit<Required<FoldableConfig>, 'breakpoints' | 'deviceTypeHint'> {
   breakpoints: BreakpointValues
+  deviceTypeHint: FoldableConfig['deviceTypeHint']
 }
 
 export interface FoldableContextValue {
@@ -24,6 +25,7 @@ const defaultConfig: ResolvedFoldableConfig = {
   foldableMinUnfoldedWidth: DEFAULT_FOLDABLE_MIN_UNFOLDED_WIDTH,
   debounceDelay: 150,
   debug: false,
+  deviceTypeHint: undefined,
 }
 
 export const FoldableContext = createContext<FoldableContextValue>({

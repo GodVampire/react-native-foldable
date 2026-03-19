@@ -36,6 +36,8 @@ export interface DetectInput {
   sidebarMinWidth: number
   triFoldThreshold: number
   foldableMinUnfoldedWidth: number
+  /** 强制设备类型，覆盖自动识别（用于 TRI_HALF 冷启动等无法自动推断的场景） */
+  deviceTypeHint?: DeviceType
 }
 
 // ─── 方向识别 ─────────────────────────────────────────────────────────────────
@@ -126,7 +128,7 @@ export function detectScreenInfo(input: DetectInput): FoldableScreenInfo {
   const orientation = detectOrientation(w, h)
   const breakpoint = getBreakpoint(w, breakpoints)
 
-  const deviceType = classifyDeviceType({
+  const deviceType = input.deviceTypeHint ?? classifyDeviceType({
     windowWidth: w, windowHeight: h,
     maxWindowWidth: dimensionManager.maxWindowWidth,
     hasFoldableBehavior: dimensionManager.isFoldableBehavior(foldableMinUnfoldedWidth),
@@ -156,6 +158,7 @@ export function detectFromDimensionManager(
   sidebarMinWidth = DEFAULT_SIDEBAR_MIN_WIDTH,
   triFoldThreshold = DEFAULT_TRI_FOLD_THRESHOLD,
   foldableMinUnfoldedWidth = DEFAULT_FOLDABLE_MIN_UNFOLDED_WIDTH,
+  deviceTypeHint?: DeviceType,
 ): FoldableScreenInfo {
   const { window: win, screen: scr } = dimensionManager.current
   return detectScreenInfo({
@@ -163,5 +166,6 @@ export function detectFromDimensionManager(
     screenWidth: scr.width, screenHeight: scr.height,
     scale: win.scale, fontScale: win.fontScale,
     breakpoints, sidebarMinWidth, triFoldThreshold, foldableMinUnfoldedWidth,
+    deviceTypeHint,
   })
 }

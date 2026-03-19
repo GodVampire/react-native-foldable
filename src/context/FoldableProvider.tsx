@@ -40,6 +40,7 @@ function resolveConfig(c?: FoldableConfig): ResolvedFoldableConfig {
     foldableMinUnfoldedWidth: c?.foldableMinUnfoldedWidth ?? DEFAULT_FOLDABLE_MIN_UNFOLDED_WIDTH,
     debounceDelay: c?.debounceDelay ?? DEFAULT_DEBOUNCE_DELAY,
     debug: c?.debug ?? false,
+    deviceTypeHint: c?.deviceTypeHint,
   }
 }
 
@@ -60,6 +61,7 @@ export function FoldableProvider({ children, config: userConfig }: FoldableProvi
       resolvedConfig.sidebarMinWidth,
       resolvedConfig.triFoldThreshold,
       resolvedConfig.foldableMinUnfoldedWidth,
+      resolvedConfig.deviceTypeHint,
     )
   })
 
@@ -73,6 +75,7 @@ export function FoldableProvider({ children, config: userConfig }: FoldableProvi
     const next = detectFromDimensionManager(
       cfg.breakpoints, cfg.sidebarMinWidth,
       cfg.triFoldThreshold, cfg.foldableMinUnfoldedWidth,
+      cfg.deviceTypeHint,
     )
     if (cfg.debug) {
       console.log(

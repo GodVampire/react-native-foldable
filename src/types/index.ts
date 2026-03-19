@@ -169,6 +169,23 @@ export interface FoldableConfig {
   debounceDelay?: number
   /** 开启调试日志，打印每次尺寸/折叠状态变化，默认 false */
   debug?: boolean
+  /**
+   * 强制指定设备类型，用于绕过冷启动识别局限。
+   *
+   * 纯 JS 方案在以下场景无法通过宽度历史推断设备类型：
+   * - 三折叠设备以 TRI_HALF 态（~800dp）冷启动：宽度与普通平板重叠，无法区分
+   * - 三折叠设备始终在 TRI_HALF 范围内使用、从不展开至 TRI_FULL（≥900dp）
+   *
+   * 如需首帧即准确识别，可通过 react-native-device-info 等库获取设备型号后手动传入：
+   * ```tsx
+   * import DeviceInfo from 'react-native-device-info'
+   * const model = DeviceInfo.getModel() // e.g. "Mate XT"
+   * <FoldableProvider config={{
+   *   deviceTypeHint: model.includes('Mate XT') ? DeviceType.TRI_FOLDABLE : undefined
+   * }}>
+   * ```
+   */
+  deviceTypeHint?: DeviceType
 }
 
 export interface AdaptiveLayoutProps {
