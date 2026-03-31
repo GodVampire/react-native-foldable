@@ -31,20 +31,20 @@ import type { FoldableScreenInfo } from '../types'
  * export default withFoldableScreen(DetailScreen)
  * ```
  */
-export function withFoldableScreen<P extends { foldable: FoldableScreenInfo }>(
+export function withFoldableScreen<P extends { foldable: FoldableScreenInfo }, Ref = unknown>(
   Component: React.ComponentType<P>,
-): React.ComponentType<Omit<P, 'foldable'>> {
+): React.ForwardRefExoticComponent<
+  React.PropsWithoutRef<Omit<P, 'foldable'>> & React.RefAttributes<Ref>
+> {
   const displayName = Component.displayName ?? Component.name ?? 'Component'
 
-  function WrappedComponent(props: Omit<P, 'foldable'>) {
-    return (
-      <FoldableContext.Consumer>
-        {({ screenInfo }) => (
-          <Component {...(props as P)} foldable={screenInfo} />
-        )}
-      </FoldableContext.Consumer>
-    )
-  }
+  const WrappedComponent = React.forwardRef<Ref, Omit<P, 'foldable'>>((props, ref) => (
+    <FoldableContext.Consumer>
+      {({ screenInfo }) => (
+        <Component {...(props as unknown as P)} foldable={screenInfo} ref={ref as never} />
+      )}
+    </FoldableContext.Consumer>
+  ))
 
   WrappedComponent.displayName = `withFoldableScreen(${displayName})`
   return WrappedComponent
