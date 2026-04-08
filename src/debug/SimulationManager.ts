@@ -159,7 +159,7 @@ export const SIMULATION_PRESETS: Record<SimulationPreset, SimulationEntry> = {
     info: {
       ...BASE,
       width: 374, height: 820,
-      screenWidth: 882, screenHeight: 832,
+      screenWidth: 374, screenHeight: 820,
       orientation: Orientation.PORTRAIT,
       foldState: FoldState.FOLDED,
       deviceType: DeviceType.FOLDABLE,
@@ -246,7 +246,7 @@ export const SIMULATION_PRESETS: Record<SimulationPreset, SimulationEntry> = {
       ...BASE,
       width: 800, height: 848,
       screenWidth: 1008, screenHeight: 1079,
-      orientation: Orientation.LANDSCAPE,
+      orientation: Orientation.PORTRAIT,
       foldState: FoldState.TRI_HALF,
       deviceType: DeviceType.TRI_FOLDABLE,
       layoutMode: LayoutMode.DUAL,    // 800 < 840 → wideEnough=false → DUAL
@@ -268,7 +268,7 @@ export const SIMULATION_PRESETS: Record<SimulationPreset, SimulationEntry> = {
       ...BASE,
       width: 1008, height: 848,
       screenWidth: 1008, screenHeight: 1079,
-      orientation: Orientation.LANDSCAPE,
+      orientation: Orientation.PORTRAIT,
       foldState: FoldState.TRI_FULL,
       deviceType: DeviceType.TRI_FOLDABLE,
       layoutMode: LayoutMode.SIDEBAR_DUAL,

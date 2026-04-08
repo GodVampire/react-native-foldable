@@ -41,6 +41,7 @@ function resolveConfig(c?: FoldableConfig): ResolvedFoldableConfig {
     debounceDelay: c?.debounceDelay ?? DEFAULT_DEBOUNCE_DELAY,
     debug: c?.debug ?? false,
     deviceTypeHint: c?.deviceTypeHint,
+    orientationHint: c?.orientationHint,
   }
 }
 
@@ -62,6 +63,7 @@ export function FoldableProvider({ children, config: userConfig }: FoldableProvi
       resolvedConfig.triFoldThreshold,
       resolvedConfig.foldableMinUnfoldedWidth,
       resolvedConfig.deviceTypeHint,
+      resolvedConfig.orientationHint,
     )
   })
 
@@ -75,7 +77,7 @@ export function FoldableProvider({ children, config: userConfig }: FoldableProvi
     const next = detectFromDimensionManager(
       cfg.breakpoints, cfg.sidebarMinWidth,
       cfg.triFoldThreshold, cfg.foldableMinUnfoldedWidth,
-      cfg.deviceTypeHint,
+      cfg.deviceTypeHint, cfg.orientationHint,
     )
     if (cfg.debug) {
       console.log(
@@ -97,6 +99,7 @@ export function FoldableProvider({ children, config: userConfig }: FoldableProvi
     resolvedConfig.sidebarMinWidth,
     resolvedConfig.triFoldThreshold,
     resolvedConfig.foldableMinUnfoldedWidth,
+    resolvedConfig.orientationHint,
     applyRealDimensions,
   ])
 
@@ -104,11 +107,24 @@ export function FoldableProvider({ children, config: userConfig }: FoldableProvi
   // 模拟激活时只同步真实设备的屏幕方向，其余字段保持模拟数据不变
   const handleChange = useCallback(() => {
     if (simulationManager.isActive) {
-      const { window: win } = dimensionManager.current
-      const realOrientation = win.width >= win.height ? Orientation.LANDSCAPE : Orientation.PORTRAIT
-      setScreenInfo((prev) =>
-        prev.orientation !== realOrientation ? { ...prev, orientation: realOrientation } : prev
-      )
+      const cfg = configRef.current
+      // orientationHint 优先；否则用混合策略推断
+      setScreenInfo((prev) => {
+        let realOrientation: Orientation
+        if (cfg.orientationHint) {
+          realOrientation = cfg.orientationHint
+        } else {
+          const { window: win, screen: scr } = dimensionManager.current
+          const isFoldableUnfolded =
+            (prev.deviceType === 'FOLDABLE' || prev.deviceType === 'TRI_FOLDABLE') &&
+            prev.foldState !== 'FOLDED'
+          const [ow, oh] = isFoldableUnfolded
+            ? [scr.width, scr.height]
+            : [win.width, win.height]
+          realOrientation = ow >= oh ? Orientation.LANDSCAPE : Orientation.PORTRAIT
+        }
+        return prev.orientation !== realOrientation ? { ...prev, orientation: realOrientation } : prev
+      })
       return
     }
     applyRealDimensions()

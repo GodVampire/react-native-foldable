@@ -114,12 +114,16 @@ class DimensionManager {
 
   private _subscribe(): void {
     this.subscription = Dimensions.addEventListener('change', ({ window, screen }) => {
+      // 立即更新快照，确保任何时刻读取 current 都能拿到最新值
+      this._updateSnapshot(window, screen)
+      // 防抖仅作用于 listener 通知（折叠动画期间避免频繁 re-render）
       if (this.debounceTimer) clearTimeout(this.debounceTimer)
-      this.debounceTimer = setTimeout(() => this._apply(window, screen), this.debounceDelay)
+      this.debounceTimer = setTimeout(() => this._notifyListeners(), this.debounceDelay)
     })
   }
 
-  private _apply(window: ScaledSize, screen: ScaledSize): void {
+  /** 立即更新内部快照及宽度统计（不触发 listener） */
+  private _updateSnapshot(window: ScaledSize, screen: ScaledSize): void {
     this._current = {
       window: toMetrics(window),
       screen: toMetrics(screen),
@@ -129,7 +133,10 @@ class DimensionManager {
       this._maxWindowWidth = window.width
     }
     this.widthBuckets.add(toBucket(window.width))
+  }
 
+  /** 通知所有订阅者（在防抖结束后调用） */
+  private _notifyListeners(): void {
     this.listeners.forEach((fn) => {
       try { fn(this._current) } catch (e) {
         if (__DEV__) console.warn('[RNFoldable] listener error:', e)

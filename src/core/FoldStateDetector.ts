@@ -38,12 +38,45 @@ export interface DetectInput {
   foldableMinUnfoldedWidth: number
   /** 强制设备类型，覆盖自动识别（用于 TRI_HALF 冷启动等无法自动推断的场景） */
   deviceTypeHint?: DeviceType
+  /** 外部注入的屏幕方向，优先于内置启发式 */
+  orientationHint?: Orientation
 }
 
 // ─── 方向识别 ─────────────────────────────────────────────────────────────────
 
-function detectOrientation(w: number, h: number): Orientation {
-  return w >= h ? Orientation.LANDSCAPE : Orientation.PORTRAIT
+/**
+ * 检测屏幕方向（混合策略）
+ *
+ * 单独使用 window 或 screen 尺寸都不够可靠：
+ * - window：折叠设备展开后宽度可能超过高度（如 Mate XT 竖向全展 1008×848），误判为 LANDSCAPE
+ * - screen：折叠态下 screen 可能仍报告内屏尺寸（如 Z Fold6 折叠时 screen 882×832），误判为 LANDSCAPE
+ *
+ * 策略：
+ * - 折叠设备展开态（UNFOLDED / TRI_HALF / TRI_FULL / HALF_FOLDED）→ 用 screen 尺寸
+ *   此时 screen 跟随物理旋转，能正确反映持握方向
+ * - 其余场景（非折叠设备、折叠设备折叠态）→ 用 window 尺寸
+ *   折叠态下 window 对应当前活跃显示区域，尺寸可靠
+ */
+function detectOrientation(
+  windowWidth: number,
+  windowHeight: number,
+  screenWidth: number,
+  screenHeight: number,
+  deviceType: DeviceType,
+  foldState: FoldState,
+  hint?: Orientation,
+): Orientation {
+  // 外部注入方向时直接采用（如来自 react-native-orientation-locker）
+  if (hint) return hint
+
+  const isFoldableUnfolded =
+    (deviceType === DeviceType.FOLDABLE || deviceType === DeviceType.TRI_FOLDABLE) &&
+    foldState !== FoldState.FOLDED
+
+  if (isFoldableUnfolded) {
+    return screenWidth >= screenHeight ? Orientation.LANDSCAPE : Orientation.PORTRAIT
+  }
+  return windowWidth >= windowHeight ? Orientation.LANDSCAPE : Orientation.PORTRAIT
 }
 
 // ─── 折叠状态推断 ─────────────────────────────────────────────────────────────
@@ -125,7 +158,6 @@ export function detectScreenInfo(input: DetectInput): FoldableScreenInfo {
     triFoldThreshold, foldableMinUnfoldedWidth,
   } = input
 
-  const orientation = detectOrientation(w, h)
   const breakpoint = getBreakpoint(w, breakpoints)
 
   const deviceType = input.deviceTypeHint ?? classifyDeviceType({
@@ -137,6 +169,7 @@ export function detectScreenInfo(input: DetectInput): FoldableScreenInfo {
   })
 
   const foldState = inferFoldState(deviceType, w, h, triFoldThreshold, foldableMinUnfoldedWidth)
+  const orientation = detectOrientation(w, h, screenWidth, screenHeight, deviceType, foldState, input.orientationHint)
   const layoutMode = inferLayoutMode(deviceType, foldState, w, sidebarMinWidth, breakpoints)
   const columns = getColumnCount(breakpoint)
 
@@ -159,6 +192,7 @@ export function detectFromDimensionManager(
   triFoldThreshold = DEFAULT_TRI_FOLD_THRESHOLD,
   foldableMinUnfoldedWidth = DEFAULT_FOLDABLE_MIN_UNFOLDED_WIDTH,
   deviceTypeHint?: DeviceType,
+  orientationHint?: Orientation,
 ): FoldableScreenInfo {
   const { window: win, screen: scr } = dimensionManager.current
   return detectScreenInfo({
@@ -166,6 +200,6 @@ export function detectFromDimensionManager(
     screenWidth: scr.width, screenHeight: scr.height,
     scale: win.scale, fontScale: win.fontScale,
     breakpoints, sidebarMinWidth, triFoldThreshold, foldableMinUnfoldedWidth,
-    deviceTypeHint,
+    deviceTypeHint, orientationHint,
   })
 }

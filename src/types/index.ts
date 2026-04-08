@@ -186,6 +186,41 @@ export interface FoldableConfig {
    * ```
    */
   deviceTypeHint?: DeviceType
+
+  /**
+   * 外部注入的屏幕方向，优先级高于内置启发式推断。
+   *
+   * 纯 JS 方案通过宽高比推断方向在折叠设备上不可靠（展开后 window 宽>高），
+   * 如需精确方向，可配合 react-native-orientation-locker / expo-screen-orientation
+   * 等原生库将真实方向注入：
+   *
+   * ```tsx
+   * import RNOrientation from 'react-native-orientation-locker'
+   *
+   * function App() {
+   *   // ⚠️ 必须用同步 API 初始化，避免首帧 orientationHint 为空回退到启发式
+   *   const [orientation, setOrientation] = useState<Orientation>(() => {
+   *     const initial = RNOrientation.getInitialOrientation()
+   *     return initial.includes('LANDSCAPE') ? Orientation.LANDSCAPE : Orientation.PORTRAIT
+   *   })
+   *
+   *   useEffect(() => {
+   *     const onOrientation = (o: string) => {
+   *       setOrientation(o.includes('LANDSCAPE') ? Orientation.LANDSCAPE : Orientation.PORTRAIT)
+   *     }
+   *     RNOrientation.addOrientationListener(onOrientation)
+   *     return () => RNOrientation.removeOrientationListener(onOrientation)
+   *   }, [])
+   *
+   *   return (
+   *     <FoldableProvider config={{ orientationHint: orientation }}>
+   *       <RootNavigator />
+   *     </FoldableProvider>
+   *   )
+   * }
+   * ```
+   */
+  orientationHint?: Orientation
 }
 
 export interface AdaptiveLayoutProps {
