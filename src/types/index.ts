@@ -72,9 +72,9 @@ export enum LayoutMode {
 }
 
 export enum Orientation {
-  /** 竖屏：高度大于宽度 */
+  /** 竖屏：设备竖向持握，短边朝左右两侧 */
   PORTRAIT = 'PORTRAIT',
-  /** 横屏：宽度大于等于高度 */
+  /** 横屏：设备横向持握，长边朝左右两侧 */
   LANDSCAPE = 'LANDSCAPE',
 }
 

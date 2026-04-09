@@ -45,17 +45,20 @@ export interface DetectInput {
 // ─── 方向识别 ─────────────────────────────────────────────────────────────────
 
 /**
- * 检测屏幕方向（混合策略）
+ * 推断屏幕方向（宽高比启发式近似）
  *
- * 单独使用 window 或 screen 尺寸都不够可靠：
- * - window：折叠设备展开后宽度可能超过高度（如 Mate XT 竖向全展 1008×848），误判为 LANDSCAPE
- * - screen：折叠态下 screen 可能仍报告内屏尺寸（如 Z Fold6 折叠时 screen 882×832），误判为 LANDSCAPE
+ * ⚠️ 这是一个近似算法，不等同于操作系统报告的物理设备方向：
+ * - 折叠设备展开后 window 宽可能大于高（如 Mate XT 竖向全展 1008×848），纯靠 window 会误判
+ * - iOS 的 Dimensions 变化回调在旋转动画开始时触发，携带的是旋转前的旧尺寸，
+ *   需要靠足够长的防抖（iOS 默认 450ms）等动画结束后再读取正确值
+ * - 折叠态下 screen 可能仍报告内屏尺寸（如 Z Fold6 折叠时 screen 882×832），误判为 LANDSCAPE
  *
- * 策略：
- * - 折叠设备展开态（UNFOLDED / TRI_HALF / TRI_FULL / HALF_FOLDED）→ 用 screen 尺寸
- *   此时 screen 跟随物理旋转，能正确反映持握方向
- * - 其余场景（非折叠设备、折叠设备折叠态）→ 用 window 尺寸
- *   折叠态下 window 对应当前活跃显示区域，尺寸可靠
+ * 如需精确物理方向，请通过 config.orientationHint 从 react-native-orientation-locker
+ * 等原生库注入真实方向值（优先级高于此函数）。
+ *
+ * 混合策略：
+ * - 折叠设备展开态 → 用 screen 尺寸（screen 跟随物理旋转，比 window 更可靠）
+ * - 其余场景 → 用 window 尺寸（普通/折叠态下 window 对应活跃显示区域）
  */
 function detectOrientation(
   windowWidth: number,
