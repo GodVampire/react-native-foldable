@@ -14,7 +14,9 @@ import {
   WIDTH_BUCKET_SIZE,
   DEFAULT_TRI_FOLD_THRESHOLD,
   DEFAULT_FOLDABLE_MIN_UNFOLDED_WIDTH,
+  IOS_DUAL_FOLD_WIDTH_DIFF_THRESHOLD,
 } from './constants'
+import { IS_IOS, IS_PAD } from './PlatformDetector'
 import type { ScreenMetrics } from '../types'
 
 export interface DimensionSnapshot {
@@ -79,6 +81,15 @@ class DimensionManager {
 
   /** 设备是否表现出可折叠行为（会话中出现明显宽度跳变） */
   isFoldableBehavior(minUnfoldedWidth = DEFAULT_FOLDABLE_MIN_UNFOLDED_WIDTH): boolean {
+    // iOS 双折(iPhone Duo)：window(内屏)与 screen(外屏)宽度显著差异，冷启动即成立，无需宽度跳变历史
+    if (
+      IS_IOS && !IS_PAD &&
+      this._current &&
+      Math.abs(this._current.window.width - this._current.screen.width) >= IOS_DUAL_FOLD_WIDTH_DIFF_THRESHOLD &&
+      this._maxWindowWidth >= minUnfoldedWidth
+    ) {
+      return true
+    }
     return this._maxWindowWidth >= minUnfoldedWidth && this.distinctWidthLevels >= 2
   }
 

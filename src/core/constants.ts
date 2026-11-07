@@ -21,6 +21,9 @@ export const DEFAULT_TRI_FOLD_THRESHOLD = 900
 /** 可折叠设备最小展开宽度（超过即认为有折叠行为） */
 export const DEFAULT_FOLDABLE_MIN_UNFOLDED_WIDTH = 600
 
+/** iOS 双折(iPhone Duo)内外屏宽度差识别阈值：window(内屏)与 screen(外屏)宽度差 ≥ 此值即认定折叠行为（Duo 实测内屏 951pt / 外屏 466pt，差 485pt） */
+export const IOS_DUAL_FOLD_WIDTH_DIFF_THRESHOLD = 200
+
 /** 侧边栏显示阈值（窗口宽度 ≥ 此值时建议显示永久侧边栏） */
 export const DEFAULT_SIDEBAR_MIN_WIDTH = 840
 

@@ -77,7 +77,8 @@ export function classifyDeviceType(input: DeviceClassifyInput): DeviceType {
   const { maxWindowWidth, hasFoldableBehavior, hasTriFoldBehavior, breakpoints } = input
 
   if (IS_PAD) return DeviceType.IPAD
-  if (hasTriFoldBehavior) return DeviceType.TRI_FOLDABLE
+  // iOS 无三折设备：iPhone Duo(双折)内屏宽超阈值会误判 TRI_FOLDABLE，排除
+  if (hasTriFoldBehavior && !IS_IOS) return DeviceType.TRI_FOLDABLE
   if (hasFoldableBehavior && maxWindowWidth >= breakpoints.md) return DeviceType.FOLDABLE
   if (maxWindowWidth >= breakpoints.xxl) return DeviceType.DESKTOP
   if (maxWindowWidth >= breakpoints.md && !hasFoldableBehavior) return DeviceType.TABLET
